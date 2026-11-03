@@ -1,3 +1,9 @@
 build/
 *.o
 .vscode/tasks.json
+
+# Binaires
+sae
+src/main
+*.exe
+*.d
