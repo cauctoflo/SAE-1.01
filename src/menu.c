@@ -13,6 +13,18 @@ void screen_clear(void)
     fflush(stdout);
 }
 
+int get_terminal_size(int *rows, int *cols) 
+{
+    struct winsize terminal;
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal) == -1) {
+        return -1; // Erreur lors de l'obtention de la taille du terminal
+    }
+    *rows = terminal.ws_row;
+    *cols = terminal.ws_col;
+    return 0; // Succès
+}
+
+// Fonction pour centrer le texte sur une ligne spécifique
 static void screen_center_line(const char *text, int row, int terminal_width)
 {
     int column;
@@ -29,7 +41,7 @@ static void screen_center_line(const char *text, int row, int terminal_width)
 
     printf("\033[%d;%dH%s", row, column + 1, text);
 }
-
+// Fonction pour afficher du texte au milieu de l'écran
 void screen_middle(const char *text)
 {
     struct winsize terminal;
@@ -37,13 +49,12 @@ void screen_middle(const char *text)
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal) == -1) {
         return;
     }
-
-    screen_center_line(text, ((int) terminal.ws_row + 1) / 2,
-                       (int) terminal.ws_col);
+    // On utilise (terminal.ws_row + 1) / 2 pour centrer le texte verticalement
+    screen_center_line(text, ((int) terminal.ws_row + 1) / 2, (int) terminal.ws_col);
     fflush(stdout);
 }
 
-
+// La fonction pour afficher le menu principal du jeu
 void afficher_menu(void)
 {
     int choix = 0;

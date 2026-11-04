@@ -12,4 +12,7 @@ void screen_middle(const char *text);
 // Fonction pour afficher le menu principal
 void afficher_menu(void);
 
+// Fonction pour avoir la taille du terminal
+int get_terminal_size(int *rows, int *cols);
+
 #endif
