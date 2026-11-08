@@ -7,6 +7,82 @@
 #include <unistd.h>
 #include "menu.h"
 
+#define DIMENSION_MIN 5
+#define DIMENSION_MAX 50
+
+static int lire_entier(const char *message)
+{
+    char ligne[64];
+    int valeur;
+    char caractere;
+
+    while (1) {
+        printf("%s", message);
+        fflush(stdout);
+
+        if (fgets(ligne, sizeof(ligne), stdin) == NULL) {
+            return -1;
+        }
+
+        if (sscanf(ligne, "%d %c", &valeur, &caractere) == 1) {
+            return valeur;
+        }
+
+        printf("Veuillez saisir un nombre entier.\n");
+    }
+}
+
+static void afficher_parametres(T_Parametres *parametres)
+{
+    int choix;
+
+    do {
+        screen_clear();
+        printf("===== PARAMETRES =====\n\n");
+        printf("Grille : %d lignes x %d colonnes\n", parametres->lignes,
+               parametres->colonnes);
+        printf("Deplacement maximum vers le bas : %d\n", parametres->bas_max);
+        printf("Deplacement maximum vers la droite : %d\n\n",
+               parametres->droite_max);
+        printf("1. Modifier les parametres\n");
+        printf("2. Retour\n");
+
+        choix = lire_entier("Votre choix : ");
+
+        if (choix == 1) {
+            T_Parametres nouveaux = *parametres;
+
+            nouveaux.lignes = lire_entier("Nombre de lignes (5 a 50) : ");
+            nouveaux.colonnes = lire_entier("Nombre de colonnes (5 a 50) : ");
+            nouveaux.bas_max = lire_entier("Deplacement maximum vers le bas : ");
+            nouveaux.droite_max = lire_entier("Deplacement maximum vers la droite : ");
+
+            if (nouveaux.lignes < DIMENSION_MIN ||
+                nouveaux.lignes > DIMENSION_MAX ||
+                nouveaux.colonnes < DIMENSION_MIN ||
+                nouveaux.colonnes > DIMENSION_MAX ||
+                nouveaux.bas_max < 1 ||
+                nouveaux.bas_max > nouveaux.lignes / 2 ||
+                nouveaux.droite_max < 1 ||
+                nouveaux.droite_max > nouveaux.colonnes / 2 ||
+                nouveaux.bas_max + nouveaux.droite_max > 9) {
+                printf("Parametres invalides : verifiez les limites et b + d <= 9.\n");
+                printf("Appuyez sur Entree pour continuer...");
+                getchar();
+            } else {
+                *parametres = nouveaux;
+                printf("Parametres enregistres.\n");
+                printf("Appuyez sur Entree pour continuer...");
+                getchar();
+            }
+        } else if (choix != 2 && choix != -1) {
+            printf("Choix invalide.\n");
+            printf("Appuyez sur Entree pour continuer...");
+            getchar();
+        }
+    } while (choix != 2 && choix != -1);
+}
+
 void screen_clear(void) 
 {
     printf("\033[2J\033[H");
@@ -55,7 +131,7 @@ void screen_middle(const char *text)
 }
 
 // La fonction pour afficher le menu principal du jeu
-void afficher_menu(void)
+void afficher_menu(T_Parametres *parametres)
 {
     int choix = 0;
     const char *lignes[] = {
@@ -79,7 +155,7 @@ void afficher_menu(void)
             fflush(stdout);
         }
 
-        scanf("%d", &choix);
+        choix = lire_entier("Votre choix : ");
 
         switch (choix) {
             case 1:
@@ -87,7 +163,7 @@ void afficher_menu(void)
                 break;
 
             case 2:
-                screen_middle("Parametres...\n");
+                afficher_parametres(parametres);
                 break;
 
             case 3:
@@ -98,5 +174,6 @@ void afficher_menu(void)
                 screen_middle("Choix invalide.\n");
         }
 
-    } while (choix != 3);
+    } while (choix != 3 && choix != -1);
+    screen_clear();
 }

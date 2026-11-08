@@ -5,12 +5,14 @@
 
 int main(void)
 {
+    T_Parametres parametres = {5, 5, 1, 1};
+
     screen_clear();
     // T_Case pion = {1, 1};
 
     // Affiche_Grille(10, 10, pion);
 
-    afficher_menu();
+    afficher_menu(&parametres);
 
     return 0;
 }
