@@ -1,10 +1,13 @@
 #ifndef GAME_H
 #define GAME_H
 
-const char *VERSION = "1.0.0";
-const char *ELEVE1 = "FOULIGNY Florentin";
-const char *ELEVE2 = "SOUVANLAVAH Léo";
-#include <stdio.h>
+extern const char *VERSION;
+extern const char *ELEVE1;
+extern const char *ELEVE2;
 
+#include "menu.h"
+
+void Start_Game(T_Parametres *parametres);
+void Game_Setup(int *Nb_Joueurs, T_Parametres *parametres);
 
 #endif

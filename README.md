@@ -2,4 +2,4 @@
 
 SAE 1.01
 
-gcc -Wall -Wextra -Iinclude src/main.c src/menu.c -o sae
+gcc -std=c11 -Wall -Wextra -Wpedantic -g -Iinclude src/main.c src/menu.c src/game.c -o sae.exe

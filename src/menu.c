@@ -2,6 +2,7 @@
 #include <string.h>
 #include <limits.h>
 #include "menu.h"
+#include "game.h"
 
 #define TERM_LIGNES 24
 #define TERM_COLONNES 80
@@ -13,6 +14,7 @@
 
 void screen_clear(void)
 {
+    // Utilisation de séquences d'échappement ANSI pour effacer l'écran et repositionner le curseur
     printf("\033[2J\033[H");
     fflush(stdout);
 }
@@ -54,27 +56,40 @@ void screen_middle(const char *text)
 
 static void attendre_entree(void)
 {
-    char ligne[64];
+    int caractere;
 
     printf("\nAppuyez sur Entree pour continuer...");
     fflush(stdout);
-    fgets(ligne, sizeof(ligne), stdin);
+    do {
+        caractere = getchar();
+    } while (caractere != '\n' && caractere != EOF);
+}
+
+static void vider_ligne(void)
+{
+    int caractere;
+
+    do {
+        caractere = getchar();
+    } while (caractere != '\n' && caractere != EOF);
 }
 
 static int lire_entier(const char *message)
 {
-    char ligne[64];
     int valeur;
-    char reste;
+    int resultat;
 
     while (1) {
         printf("%s", message);
         fflush(stdout);
 
-        if (fgets(ligne, sizeof(ligne), stdin) == NULL) {
+        resultat = scanf("%d", &valeur);
+        vider_ligne();
+
+        if (resultat == EOF) {
             return LECTURE_ERREUR;
         }
-        if (sscanf(ligne, "%d %c", &valeur, &reste) == 1) {
+        if (resultat == 1) {
             return valeur;
         }
         printf("Veuillez saisir un nombre entier.\n");
@@ -173,9 +188,7 @@ void afficher_menu(T_Parametres *parametres)
         switch (choix) {
             case 1:
                 screen_clear();
-                screen_middle("Nouvelle partie...");
-                printf("\033[%d;1H", rows);
-                attendre_entree();
+                Start_Game(parametres);
                 break;
             case 2:
                 afficher_parametres(parametres);

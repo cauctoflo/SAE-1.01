@@ -1,43 +1,29 @@
 #include <stdio.h>
 #include "grille.h"
+#include "menu.h"
 
 int main(void)
 {
-    T_Case pion = {1, 1};
+    screen_clear();
+    // Initialisation des paramètres du jeu
+    // Pion du joueur
 
-    Affiche_Grille(10, 10, pion);
+    // Paramètres du jeu
+    T_Parametres parametres;
+    parametres.lignes = 10;
+    parametres.colonnes = 10;
+    parametres.bas_max = 2;
+    parametres.droite_max = 2;
+
+    // parametres.j1->nom = "Joueur 1";
+    // parametres.j1->symbole = 'X';
+
+    // parametres.j2->nom = "Joueur 2";
+    // parametres.j2->symbole = 'O';
+
+    
+    screen_clear();
+    afficher_menu(&parametres);
 
     return 0;
-}
-
-
-void Affiche_Grille(int L, int C, T_Case pion)
-{
-    for (int ligne = 1; ligne <= L; ligne++) {
-
-        for (int colonne = 1; colonne <= C; colonne++) {
-            printf("+---");
-        }
-        printf("+\n");
-
-        for (int colonne = 1; colonne <= C; colonne++) {
-            char symbole = ' ';
-
-            if (ligne == pion.ligne && colonne == pion.colonne) {
-                symbole = 'P';
-            } else if (ligne == L && colonne == C) {
-                symbole = 'X';
-            }
-
-            printf("| %c ", symbole);
-        }
-        printf("|\n");
-    }
-
-    for (int colonne = 1; colonne <= C; colonne++) {
-        printf("+---");
-    }
-    printf("+\n");
-
-    printf("P : pion | X : puits\n");
 }
