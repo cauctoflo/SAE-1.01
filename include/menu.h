@@ -36,3 +36,6 @@ void afficher_menu(T_Parametres *parametres);
 int get_terminal_size(int *rows, int *cols);
 
 #endif
+
+
+

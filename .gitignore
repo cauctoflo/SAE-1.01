@@ -10,4 +10,5 @@ sae
 src/main
 *.exe
 *.d
+makefile
 >>>>>>> 08f3ef6377545c8e071bfd254b00ac68de87fe4e
