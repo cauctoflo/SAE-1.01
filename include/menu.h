@@ -9,6 +9,8 @@
 typedef struct {
 	char nom[TAILLE_NOM_JOUEUR];
 	char symbole;
+	int points;
+	
 } Joueur;
 
 typedef struct {
