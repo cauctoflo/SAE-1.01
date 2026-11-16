@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <string.h>
-#include <limits.h>
 #include "menu.h"
 #include "game.h"
 
@@ -10,12 +8,9 @@
 #define DIMENSION_MIN 5
 #define DIMENSION_MAX 50
 
-#define LECTURE_ERREUR INT_MIN
-
 void screen_clear(void)
 {
-    // Utilisation de séquences d'échappement ANSI pour effacer l'écran et repositionner le curseur
-    printf("\033[2J\033[H");
+    printf("\n");
     fflush(stdout);
 }
 
@@ -31,16 +26,12 @@ int get_terminal_size(int *rows, int *cols)
 
 static void screen_center_line(const char *text, int row, int terminal_width)
 {
-    int column;
-
     if (text == NULL) {
         return;
     }
-    column = (terminal_width - (int) strlen(text)) / 2;
-    if (column < 0) {
-        column = 0;
-    }
-    printf("\033[%d;%dH%s", row, column + 1, text);
+    (void) row;
+    (void) terminal_width;
+    printf("%s\n", text);
 }
 
 void screen_middle(const char *text)
@@ -62,6 +53,7 @@ static void attendre_entree(void)
     fflush(stdout);
     do {
         caractere = getchar();
+    // Ici EOF est utilisé pour les cas ou l'utilisateur ferme l'entrée standard (par exemple, en appuyant sur Ctrl+D sous Unix/Linux). Cela permet de sortir proprement de la boucle même si l'entrée est fermée.
     } while (caractere != '\n' && caractere != EOF);
 }
 
@@ -86,9 +78,6 @@ static int lire_entier(const char *message)
         resultat = scanf("%d", &valeur);
         vider_ligne();
 
-        if (resultat == EOF) {
-            return LECTURE_ERREUR;
-        }
         if (resultat == 1) {
             return valeur;
         }
@@ -148,11 +137,31 @@ static void afficher_parametres(T_Parametres *parametres)
                 printf("Parametres invalides : verifiez les limites et b + d <= 9.\n");
             }
             attendre_entree();
-        } else if (choix != 2 && choix != LECTURE_ERREUR) {
+        } else if (choix != 2) {
             printf("Choix invalide.\n");
             attendre_entree();
         }
-    } while (choix != 2 && choix != LECTURE_ERREUR);
+    } while (choix != 2);
+}
+
+void afficher_score(const T_Parametres *parametres)
+{
+    if (parametres == NULL) {
+        return;
+    }
+
+    // Afficher le score de chaque joueur enregistré
+    screen_clear();
+    printf("===== SCORE =====\n\n");
+    for (int i = 0; i < NOMBRE_JOUEURS_MAX; i++) {
+        if (parametres->joueurs[i].nom[0] != '\0') {
+            printf("%s : %d point%s\n",
+                   parametres->joueurs[i].nom,
+                   parametres->joueurs[i].points,
+                   parametres->joueurs[i].points > 1 ? "s" : "");
+        }
+    }
+    attendre_entree();
 }
 
 void afficher_menu(T_Parametres *parametres)
@@ -161,9 +170,10 @@ void afficher_menu(T_Parametres *parametres)
         "===== MENU =====",
         "1. Nouvelle partie",
         "2. Parametres",
-        "3. Quitter"
+        "3. Score",
+        "4. Quitter"
     };
-    const int nb_lignes = 4;
+    const int nb_lignes = 5;
     int choix;
     int rows, cols;
 
@@ -176,11 +186,11 @@ void afficher_menu(T_Parametres *parametres)
         }
 
         premiere_ligne = (rows - (nb_lignes + 2)) / 2 + 1;
+        // Afficher les différentes lignes du menu
         for (int i = 0; i < nb_lignes; i++) {
             screen_center_line(lignes[i], premiere_ligne + i, cols);
         }
-        printf("\033[%d;%dH", premiere_ligne + nb_lignes + 1,
-               (cols - 14) / 2 + 1);
+        printf("\n");
         fflush(stdout);
 
         choix = lire_entier("Votre choix : ");
@@ -194,17 +204,18 @@ void afficher_menu(T_Parametres *parametres)
                 afficher_parametres(parametres);
                 break;
             case 3:
+                afficher_score(parametres);
+                break;
+            case 4:
                 screen_clear();
                 screen_middle("Au revoir !");
-                printf("\033[%d;1H\n", rows);
-                break;
-            case LECTURE_ERREUR:
+                printf("\n");
                 break;
             default:
                 screen_clear();
                 screen_middle("Choix invalide.");
-                printf("\033[%d;1H", rows);
+                printf("\n");
                 attendre_entree();
         }
-    } while (choix != 3 && choix != LECTURE_ERREUR);
+    } while (choix != 4);
 }

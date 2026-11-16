@@ -6,10 +6,8 @@ int main(void)
 {
     screen_clear();
     // Initialisation des paramètres du jeu
-    // Pion du joueur
-
     // Paramètres du jeu
-    T_Parametres parametres;
+    T_Parametres parametres = {0};
     parametres.lignes = 10;
     parametres.colonnes = 10;
     parametres.bas_max = 2;

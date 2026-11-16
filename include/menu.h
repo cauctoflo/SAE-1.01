@@ -35,6 +35,9 @@ void afficher_menu(T_Parametres *parametres);
 // Fonction pour avoir la taille du terminal
 int get_terminal_size(int *rows, int *cols);
 
+// Affiche le score de tout les joueurs
+void afficher_score(const T_Parametres *parametres);
+
 #endif
 
 
