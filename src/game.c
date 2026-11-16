@@ -57,6 +57,27 @@ static int choisir_joueur_depart(void)
     return joueur - 1;
 }
 
+static int demander_rejouer(void)
+{
+    int choix;
+
+    // Proposer de refaire une partie avec les mêmes joueurs ou de les changer
+    do {
+        printf("\nVoulez-vous relancer une partie ?\n");
+        printf("1. Oui, avec les mêmes joueurs\n");
+        printf("2. Oui, avec de nouveaux joueurs\n");
+        printf("3. Non, retourner au menu\n");
+        printf("Votre choix : ");
+
+        if (scanf("%d", &choix) != 1) {
+            choix = 0;
+        }
+        vider_ligne();
+    } while (choix < 1 || choix > 3);
+
+    return choix;
+}
+
 void Start_Game(T_Parametres *parametres)
 {
     int nb_joueurs;
@@ -80,49 +101,56 @@ void Start_Game(T_Parametres *parametres)
     nb_joueurs = 2;
 
     Game_Setup(&nb_joueurs, parametres);
-
-    // Initialiser la position du pion au début de la partie
-    position.ligne = 1;
-    position.colonne = 1;
-
-    // Tant que l'utilisateur n'appuie pas sur Entrée, on vide le buffer pour éviter les problèmes de saisie
     while (getchar() != '\n') {
     }
 
-    // Choisir le joueur qui commence la partie
-    int joueur_actuel = choisir_joueur_depart();
+    int rejouer;
+    do {
+        // Initialiser le pion au début de chaque partie
+        position.ligne = 1;
+        position.colonne = 1;
 
-    // Répéter les tours jusqu'à ce qu'un joueur atteigne le puits
-    while (1) {
-        screen_clear();
-        screen_middle("===== GRILLE DU JOUEUR =====");
+        // Choisir le joueur qui commence la partie
+        int joueur_actuel = choisir_joueur_depart();
 
-        printf("\nAu tour de: %s\n",
-               parametres->joueurs[joueur_actuel].nom);
-        printf("Symbole: %c\n",
-               parametres->joueurs[joueur_actuel].symbole);
+        // Répéter les tours jusqu'à ce qu'un joueur atteigne le puits
+        while (1) {
+            screen_clear();
+            screen_middle("===== GRILLE DU JOUEUR =====");
 
-        // Afficher la grille avec la position actuelle du pion
-        Affiche_Grille(parametres->lignes, parametres->colonnes, &position);
-        
-        // Demander au joueur actuel de choisir et de jouer un coup valide
-        Coup_Joueur(&position, parametres);
+            printf("\nAu tour de: %s\n",
+                   parametres->joueurs[joueur_actuel].nom);
+            printf("Symbole: %c\n",
+                   parametres->joueurs[joueur_actuel].symbole);
 
+            // Afficher la grille avec la position actuelle du pion
+            Affiche_Grille(parametres->lignes, parametres->colonnes, &position);
 
+            // Demander au joueur actuel de choisir et de jouer un coup valide
+            Coup_Joueur(&position, parametres);
 
-        // Vérifier si le joueur a atteint le puits
-        if (position.ligne == parametres->lignes
-            && position.colonne == parametres->colonnes) {
-            Win_Game(&parametres->joueurs[joueur_actuel]);
-            break;
+            // Vérifier si le joueur a atteint le puits
+            if (position.ligne == parametres->lignes
+                && position.colonne == parametres->colonnes) {
+                Win_Game(&parametres->joueurs[joueur_actuel]);
+                break;
+            }
+
+            printf("Appuyez sur Entree pour continuer...");
+            getchar();
+            // Passer au joueur suivant après chaque coup
+            joueur_actuel = (joueur_actuel + 1) % nb_joueurs;
         }
 
-        printf("Appuyez sur Entree pour continuer...");
-        getchar();
-        // Calcul: On passe au joueur suivant en utilisant l'opérateur modulo pour revenir au premier joueur après le dernier.
-        // Exemple: Si il y a 3 joueurs (0, 1, 2) et que le joueur actuel est le joueur 2, alors (2 + 1) % 3 = 0, donc on revient au joueur 0.
-        joueur_actuel = (joueur_actuel + 1) % nb_joueurs;
-    }
+        rejouer = demander_rejouer();
+
+        if (rejouer == 2) {
+            // Ressaisir les joueurs pour la prochaine partie
+            Game_Setup(&nb_joueurs, parametres);
+            while (getchar() != '\n') {
+            }
+        }
+    } while (rejouer != 3);
 }
 
 int Coup_Joueur(T_Case *position, const T_Parametres *parametres)
@@ -202,6 +230,7 @@ void Game_Setup(int *Nb_Joueurs, T_Parametres *parametres)
         if (scanf(" %c", &parametres->joueurs[i].symbole) != 1) {
             return;
         }
+        parametres->joueurs[i].points = 0;
     }
 }
 
